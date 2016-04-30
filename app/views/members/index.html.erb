@@ -1,6 +1,13 @@
 <% @page_title = "会員名簿" %>
 <h1><%= @page_title %></h1>
 
+<%= form_tag :search_members, method: :get do %>
+ <p>
+   <%= text_field_tag "q", params[:q]%>
+   <%= submit_tag "検索" %>
+ </p>
+<% end %>
+
 <p><%= link_to "会員の新規登録", :new_member %></p>
 
 <% if @members.present? %>
