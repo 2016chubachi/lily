@@ -5,11 +5,14 @@ class MembersController < ApplicationController
 
   def search
     @members = Member.search(params[:q])
-    render "index"
+    # render :text => params
+    # render text: params
+      render "index"
   end
 
-
   def show
+    # render  text: params
+    @member = Member.find(params[:id])
   end
 
   def new
