@@ -1,7 +1,14 @@
 require 'test_helper'
 
 class MembersControllerTest < ActionController::TestCase
-  test 'the truth' do
-    assert true
+  test "index" do
+    login_as("Taro")
+    get :index
+    assert_response :success
+  end
+
+  test "index before login" do
+    get :index
+    assert_response :forbidden
   end
 end
