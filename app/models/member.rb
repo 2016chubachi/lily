@@ -1,17 +1,26 @@
 class Member < ActiveRecord::Base
   include EmailAddressChecker
 
+  has_many :entries, dependent: :destroy
+  has_many :votes, dependent: :destroy
+  has_many :voted_entries, through: :votes, source: :entry
+  has_one :image, class_name: "MemberImage", dependent: :destroy
+  accepts_nested_attributes_for :image, allow_destroy: true
+
   validates :number, presence: true,
     numericality: { only_integer: true,
       greater_than: 0, less_than: 100, allow_blank: true },
     uniqueness: true
   validates :name, presence: true,
-    format: { with: /\A[A-Za-z]\w*\z/, allow_blank: true, message: :invalid_member_name },
+    format: { with: /\A[A-Za-z]\w*\z/, allow_blank: true,
+              message: :invalid_member_name },
     length: { minimum: 2, maximum: 20, allow_blank: true },
     uniqueness: { case_sensitive: false }
   validates :full_name, length: { maximum: 20 }
-  validate  :check_email
-  validates :password,  presence: {on: :create}, confirmation: { allow_blank: true}
+  validate :check_email
+  validates :password, presence: { on: :create },
+    confirmation: { allow_blank: true }
+
   attr_accessor :password, :password_confirmation
 
   def password=(val)
@@ -19,6 +28,10 @@ class Member < ActiveRecord::Base
       self.hashed_password = BCrypt::Password.create(val)
     end
     @password = val
+  end
+
+  def votable_for?(entry)
+    entry && entry.author != self && !votes.exists?(entry_id: entry.id)
   end
 
   private
@@ -47,6 +60,5 @@ class Member < ActiveRecord::Base
         nil
       end
     end
-
   end
 end
